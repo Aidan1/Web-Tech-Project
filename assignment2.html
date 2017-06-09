@@ -133,6 +133,11 @@
                 orders = {};
             }
         });
+
+        funtion retrieveFromServer()
+        {
+
+        }
     }
 
   	function cancelOrder() 
@@ -223,7 +228,7 @@
               tbl.append(row)
             }
 
-            var action_button = $("<tr />").append($("<td colspan='4'><input type=\"button\" id=\"addContinute\" value=\"Continute\" onclick=\"SaveToServer();\"> <input type=\"button\" id=\"addCancel\" value=\"Cancel\" onclick=\"cancelOrder;\"></td>", 
+            var action_button = $("<tr />").append($("<td colspan='4'><input type=\"button\" id=\"addContinue\" value=\"Continue\" onclick=\"SaveToServer();\"> <input type=\"button\" id=\"addCancel\" value=\"Cancel\" onclick=\"cancelOrder;\"></td>", 
             {
             	align: 'center'
             }));
@@ -239,110 +244,200 @@
     };
     </script>
     <style>
-      $table-border-radius: 10px;
-      $table-highlight-color: #EAF3F3;
-      $table-header-background-color: #167F92;
-      $table-header-text-color: #FFF;
-      $table-header-border: 1px solid #FFF;
-
-      customerTable(
-        $breakpoint: $table-breakpoint,
-        $background-color: $table-background-color,
-        $text-color: $table-text-color,
-        $outer-border: $table-outer-border,
-        $cell-border: $table-cell-border,
-        $border-radius: none,
-        $highlight-color: none,
-        $header-background-color: $table-background-color,
-        $header-text-color: $table-text-color,
-        $header-border: $table-cell-border)
+      table
       {
-        .orderTable 
-        {
-          margin: 1em 0;
-          width: 100%;
-          overflow: hidden;  
-          background: $background-color;
-          color: $text-color;
-          border-radius: $border-radius;
-          border: $outer-border;
-  
-          tr 
-          {
-            border: $cell-border; 
-            &:nth-child(odd) 
-            { 
-              background-color: $highlight-color;
-            }  
-          }
-  
-          th 
-          {
-            display: none; 
-            border: $header-border;
-            background-color: $header-background-color;
-            color: $header-text-color;
-            padding: 1em;
-
-            &:first-child 
-            { 
-              display: table-cell;
-              text-align: center;
-            }
-
-            &:nth-child(2) 
-            { 
-              display: table-cell;
-              span {display:none;}
-              &:after {content:attr(data-th);}
-            }
-
-            @media (min-width: $breakpoint) 
-            {
-              &:nth-child(2) 
-              { // hide the data-th and show the normal header for tablet and desktop
-              span {display: block;}
-              &:after {display: none;}
-          }
-        }
+        font-family: "Helvetica Neue", Helvetica, sans-serif;
+        border-style: solid;
+        border-width: 3px;
+        border-color: pink;
+        border-radius: 6px;
+        border-spacing: 0;
+        -webkit-border-radius: 6px;
+        -moz-border-radius: 6px;
+        border-collapse: collapse;
+        padding: 20px;
       }
-  
-            td 
-            {
-              display: block; 
-              word-wrap: break-word;
-              max-width: 7em;
-              &:first-child 
-              { 
-                display: table-cell; // display the first one as a table cell (radio button) for mobile
-                text-align: center;
-                border-right: $cell-border;
-              }
-              @media (min-width: $breakpoint) 
-              {
-                border: $cell-border;
-              }
-            }
-          
-            th, td 
-            {
-              text-align: left;
-              margin: .5em 1em;  
-              @media (min-width: $breakpoint) 
-              {
-                display: table-cell; 
-                padding: 1em;
-              }
-            }  
-          }    
-        }
+
+      th
+      {
+        text-align: center;
+        color: black;
       }
-      @include customerTable(
-        $border-radius: $table-border-radius,
-        $highlight-color: $table-highlight-color,
-        $header-background-color: $table-header-background-color,
-        $header-text-color: $table-header-text-color,
-        $header-border: $table-header-border);
+
+      th, td 
+      {
+        padding: 5px 10px;
+      }
+
+      tbody tr:nth-child(even) 
+      {
+        color: black;
+        background: WhiteSmoke;
+      }
+
+      tbody tr td:nth-child(2) 
+      {
+        text-align:center;
+      }
+
+      tbody tr td:nth-child(3),
+      tbody tr td:nth-child(4) 
+      {
+        text-align:center;
+      }
+
+      tfoot tr th:last-child 
+      {
+        text-align:center;
+      }
+
+      table {
+    *border-collapse: collapse; /* IE7 and lower */
+    border-spacing: 0;
+    width: 100%;    
+}
+
+.customerTable {
+    border: solid #ccc 1px;
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 1px 1px #ccc; 
+    -moz-box-shadow: 0 1px 1px #ccc; 
+    box-shadow: 0 1px 1px #ccc;         
+}
+
+.customerTable tr:hover {
+    background: #fbf8e9;
+    -o-transition: all 0.1s ease-in-out;
+    -webkit-transition: all 0.1s ease-in-out;
+    -moz-transition: all 0.1s ease-in-out;
+    -ms-transition: all 0.1s ease-in-out;
+    transition: all 0.1s ease-in-out;     
+}    
+    
+.customerTable td, .customerTable th {
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;    
+}
+
+.customerTable th {
+    background-color: #dce9f9;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+    background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+    background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+    border-top: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+}
+
+.customerTable td:first-child, .customerTable th:first-child {
+    border-left: none;
+}
+
+.customerTable th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;
+}
+
+.customerTable th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+.customerTable th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.customerTable tr:last-child td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+.customerTable tr:last-child td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+.zebra td, .zebra th {
+    padding: 10px;
+    border-bottom: 1px solid #f2f2f2;    
+}
+
+.zebra tbody tr:nth-child(even) {
+    background: #f5f5f5;
+    -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset; 
+    -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;  
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;        
+}
+
+.zebra th {
+    text-align: left;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5); 
+    border-bottom: 1px solid #ccc;
+    background-color: #eee;
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#f5f5f5), to(#eee));
+    background-image: -webkit-linear-gradient(top, #f5f5f5, #eee);
+    background-image:    -moz-linear-gradient(top, #f5f5f5, #eee);
+    background-image:     -ms-linear-gradient(top, #f5f5f5, #eee);
+    background-image:      -o-linear-gradient(top, #f5f5f5, #eee); 
+    background-image:         linear-gradient(top, #f5f5f5, #eee);
+}
+
+.zebra th:first-child {
+    -moz-border-radius: 6px 0 0 0;
+    -webkit-border-radius: 6px 0 0 0;
+    border-radius: 6px 0 0 0;  
+}
+
+.zebra th:last-child {
+    -moz-border-radius: 0 6px 0 0;
+    -webkit-border-radius: 0 6px 0 0;
+    border-radius: 0 6px 0 0;
+}
+
+.zebra th:only-child{
+    -moz-border-radius: 6px 6px 0 0;
+    -webkit-border-radius: 6px 6px 0 0;
+    border-radius: 6px 6px 0 0;
+}
+
+.zebra tfoot td {
+    border-bottom: 0;
+    border-top: 1px solid #fff;
+    background-color: #f1f1f1;  
+}
+
+.zebra tfoot td:first-child {
+    -moz-border-radius: 0 0 0 6px;
+    -webkit-border-radius: 0 0 0 6px;
+    border-radius: 0 0 0 6px;
+}
+
+.zebra tfoot td:last-child {
+    -moz-border-radius: 0 0 6px 0;
+    -webkit-border-radius: 0 0 6px 0;
+    border-radius: 0 0 6px 0;
+}
+
+.zebra tfoot td:only-child{
+    -moz-border-radius: 0 0 6px 6px;
+    -webkit-border-radius: 0 0 6px 6px
+    border-radius: 0 0 6px 6px
+}
     </style>
   <head>
 
@@ -406,6 +501,26 @@
           </td>
         </tr>
         <tr><td colspan="2" align="center"><input type="button" id="saveorder" value="Save Order" onclick="alert('Try to save order...');saveOrder();"></td></tr>
+      </table>
+      <table class="customerTable">
+        <thead>
+          <tr>
+           <th> Customer ID </th> 
+           <th> Customer Name </th>
+           <th> Item </th>
+           <th> Price </th>
+           <th> Quantity </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>  </td>
+            <td>  </td>
+            <td>  </td>
+            <td>  </td>
+            <td>  </td>
+          </tr>
+        </tbody>
       </table>
     </div>
 
