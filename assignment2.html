@@ -1,0 +1,459 @@
+<html>
+  <head>
+    <title>Assignment 2</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script>
+      var orders = {};
+
+      function chooseItem(item, price) 
+      {
+      	$("#item").text(item);
+      	$("#price").text(parseFloat(price).toFixed(2));
+      	$("#qty").val(1);
+      }
+
+      function itemAddUpdate() 
+      {
+        var item = $("#item").text();
+        var price = $("#price").text();
+        var qty = $("#qty").val();
+
+        var col_totalpay = $("#totalpay");
+
+        if (item != "..." && qty > 0) 
+        {
+          //alert("Add " + item + "(" + price + " * " + qty + ")");
+          var qtyprice = parseFloat(qty * price).toFixed(2);
+
+          if (typeof orders[item] == "undefined") 
+          {
+            var td_item = $("<td />", {text : item + " - "});
+            var delitem = $("<a />", {
+			    href : "javascript: itemDelete('" + item + "');",
+			    text : "Delete"
+			});
+            td_item.append(delitem);
+
+            var td_price = $("<td />", {
+			    text : parseFloat(price).toFixed(2),
+			    align : "right"
+			});
+
+			var td_qty = $("<td />", 
+      {
+			    text : qty,
+			    align : "center"
+			});
+
+			var td_qtyprice = $("<td />", 
+      {
+			    text : qtyprice,
+			    align : "right"
+			});
+
+			var row_new = $("<tr />", 
+      {
+			    id : item
+			});
+
+			row_new.append(td_item);
+      row_new.append(td_price);
+      row_new.append(td_qty);
+      row_new.append(td_qtyprice);
+
+      var row_total = $("#total");
+      row_new.insertBefore(row_total);
+      col_totalpay.text(parseFloat(parseFloat(col_totalpay.text()) + parseFloat(qtyprice)).toFixed(2));
+
+            orders[item] = {"item": item, "price": price, "qty": qty, "qtyprice": qtyprice, "tblrow": row_new};
+
+          } 
+          else 
+          {
+              var row_item =  orders[item].tblrow;
+              var cols = row_item.find("td");
+
+              col_totalpay.text(parseFloat(parseFloat(col_totalpay.text()) - parseFloat(cols.eq(3).text()) + parseFloat(qtyprice)).toFixed(2));
+
+              cols.eq(2).text(qty);
+              cols.eq(3).text(qtyprice);
+
+              orders[item].price = price;
+              orders[item].qty = qty;
+              orders[item].qtyprice = qtyprice;
+          }
+        }
+      }
+
+      function itemDelete(item) 
+      {
+        var row_item = orders[item].tblrow;
+        var cols = row_item.find("td");
+        var col_totalpay = $("#totalpay");
+
+        col_totalpay.text(parseFloat(parseFloat(col_totalpay.text()) - parseFloat(cols.eq(3).text())).toFixed(2));
+
+        row_item.remove();
+        delete orders[item];
+      }
+
+      function SaveToServer() 
+      {
+        $('#item').text('');
+        $('#price').text('');
+        $('#qty').val('');
+        $('#tblmain').show();
+        $('#tblcust').show();
+        $('#tblconfirm').remove();
+        $('#name').val("");
+        $('#address').val("");
+        $('#area').val("");
+        customer = JSON.stringify(customer),
+        order = JSON.stringify(orders)
+
+        $.ajax({
+            url: 'http://gmm-student.fc.utm.my/~lokw/save_order.php',
+            data: {'customer': customer, 'order': order},
+            type: 'POST',
+            success: function(response) 
+            {
+                console.log(response);
+                for (var i = 0; i < Object.keys(orders).length; i++) 
+                {
+                	var key = Object.keys(orders)[i];
+                	var row_item = orders[key].tblrow;
+    			        var cols = row_item.find("td");
+    			        var col_totalpay = $("#totalpay");
+
+			           col_totalpay.text(parseFloat(parseFloat(col_totalpay.text()) - parseFloat(cols.eq(3).text())).toFixed(2));
+                  row_item.remove();
+                }
+                orders = {};
+            }
+        });
+    }
+
+  	function cancelOrder() 
+    {
+        $('#tblmain').show();
+        $('#tblcust').show();
+        $('#tblconfirm').remove();
+	  }
+
+    function saveOrder() 
+    {
+        // Order Json
+        var rowCount = $('#tblmain tr').length;
+        var name = $('#name').val();
+        var address = $('#address').val();
+        var area = $('#area').val();
+        if(rowCount-4 > 0 && name!='' && address !='' && area!='')
+        {
+            // Customer Json
+            customer = {};
+
+            customer['name'] = name;
+            customer['address'] = address;
+            customer['area'] = area;
+
+            $('#tblmain').hide();
+            $('#tblcust').hide();
+
+            var tbl = $('<table><tbody></tbody></table>', 
+            {
+            	id: 'tblconfirm',
+            });
+
+            var header = $("<tr><th colspan='4'>CUSTOMER INFO</th></tr>");
+            tbl.append(header);
+
+            var customer_info = $("<tr><td colspan='4'></br>"+name+"</br>"+address+"</br>"+area+"</br>"+"</br></td></tr>");
+            tbl.append(customer_info);
+
+            var order_header = $("<tr><td colspan='4'>Order Item</td></tr>", 
+            {
+            	align: 'center'
+            });
+
+            tbl.append(order_header);
+
+            var item_header_list = ["item", "Price", "Qty", "Price"];
+            var item_header = $("<tr></tr>");
+
+            for (var i = 0; i < item_header_list.length; i++) 
+            {
+            	var item = $("<td>"+item_header_list[i]+"</td>", 
+              {
+            		align: 'center'
+            	});
+            	item_header.append(item);
+            }
+            tbl.append(item_header);
+
+            for (var i = 0; i < Object.keys(orders).length; i++) 
+            {
+            	var key = Object.keys(orders)[i];
+              var row = $('<tr></tr>');
+              var item = $("<td>"+orders[key].item+"</td>", 
+              {
+              	align: 'left'
+              });
+
+              var price = $("<td>"+orders[key].price+"</td>", 
+              {
+              	align: 'right'
+              });
+
+              var qty = $("<td>"+orders[key].qty+"</td>", 
+              {
+              	align: 'center'
+              });
+
+              var qtyprice = $("<td>"+orders[key].qtyprice+"</td>", 
+              {
+              	align: 'right'
+              });
+
+              row.append(item)
+              row.append(price)
+              row.append(qty)
+              row.append(qtyprice)
+              tbl.append(row)
+            }
+
+            var action_button = $("<tr />").append($("<td colspan='4'><input type=\"button\" id=\"addContinute\" value=\"Continute\" onclick=\"SaveToServer();\"> <input type=\"button\" id=\"addCancel\" value=\"Cancel\" onclick=\"cancelOrder;\"></td>", 
+            {
+            	align: 'center'
+            }));
+            tbl.append(action_button);
+            $("div:eq(1)").append(tbl);
+            tbl.addClass("table");
+            tbl.addClass("table-bordered");
+        }
+        else
+        {
+            alert('No item selected and address information provided')
+        }
+    };
+    </script>
+    <style>
+      $table-border-radius: 10px;
+      $table-highlight-color: #EAF3F3;
+      $table-header-background-color: #167F92;
+      $table-header-text-color: #FFF;
+      $table-header-border: 1px solid #FFF;
+
+      customerTable(
+        $breakpoint: $table-breakpoint,
+        $background-color: $table-background-color,
+        $text-color: $table-text-color,
+        $outer-border: $table-outer-border,
+        $cell-border: $table-cell-border,
+        $border-radius: none,
+        $highlight-color: none,
+        $header-background-color: $table-background-color,
+        $header-text-color: $table-text-color,
+        $header-border: $table-cell-border)
+      {
+        .orderTable 
+        {
+          margin: 1em 0;
+          width: 100%;
+          overflow: hidden;  
+          background: $background-color;
+          color: $text-color;
+          border-radius: $border-radius;
+          border: $outer-border;
+  
+          tr 
+          {
+            border: $cell-border; 
+            &:nth-child(odd) 
+            { 
+              background-color: $highlight-color;
+            }  
+          }
+  
+          th 
+          {
+            display: none; 
+            border: $header-border;
+            background-color: $header-background-color;
+            color: $header-text-color;
+            padding: 1em;
+
+            &:first-child 
+            { 
+              display: table-cell;
+              text-align: center;
+            }
+
+            &:nth-child(2) 
+            { 
+              display: table-cell;
+              span {display:none;}
+              &:after {content:attr(data-th);}
+            }
+
+            @media (min-width: $breakpoint) 
+            {
+              &:nth-child(2) 
+              { // hide the data-th and show the normal header for tablet and desktop
+              span {display: block;}
+              &:after {display: none;}
+          }
+        }
+      }
+  
+            td 
+            {
+              display: block; 
+              word-wrap: break-word;
+              max-width: 7em;
+              &:first-child 
+              { 
+                display: table-cell; // display the first one as a table cell (radio button) for mobile
+                text-align: center;
+                border-right: $cell-border;
+              }
+              @media (min-width: $breakpoint) 
+              {
+                border: $cell-border;
+              }
+            }
+          
+            th, td 
+            {
+              text-align: left;
+              margin: .5em 1em;  
+              @media (min-width: $breakpoint) 
+              {
+                display: table-cell; 
+                padding: 1em;
+              }
+            }  
+          }    
+        }
+      }
+      @include customerTable(
+        $border-radius: $table-border-radius,
+        $highlight-color: $table-highlight-color,
+        $header-background-color: $table-header-background-color,
+        $header-text-color: $table-header-text-color,
+        $header-border: $table-header-border);
+    </style>
+  <head>
+
+  <body>
+  	<h1> Created by Lo King Wei, Ng Yan Xin and Toh Chin Eng </h1>
+    <div style="float:left;">
+      <img src="menu.gif" width="500" height="487" alt="Planets" usemap="#menumap"> &nbsp; &nbsp; </td>
+    </div>
+    <div style="float:left;">
+      <table class="table table-bordered" id="tblmain">
+        <tr><th colspan="4">Order Form</th></tr>
+        <tr>
+          <th>Item</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Qty * Price</th>
+        </tr>
+
+        <tr id="total">
+          <th colspan="3" align="right"><b>TOTAL (RM)</b></th>
+          <th id="totalpay" align="right">0</th>
+        </tr>
+
+        <tr id="add">
+          <td id="item">...</td>
+          <td id="price" align="right">...</td>
+          <td align="center"><input type="text" id="qty" size="3" style="text-align:right;"></td>
+          <td align="center"><input type="button" id="addupdate" value="Add/Update" onclick="itemAddUpdate();"></td>
+        </tr>
+      </table>
+      <p>
+      <table class = "tab" id="tblcust">
+        <tr><th colspan="2">Customer Form</th></tr>
+        <tr>
+          <th align="right">Name:</th>
+          <td><input type="text" id="name" size="30" value="Lionel Messi"></td>
+        </tr>
+        <tr>
+          <th align="right" valign="top">Address:</th>
+          <td>
+            <input type="text" id="address" size="50" value="Block L07, Jalan Merbau, KTHO">
+            <br>
+            <span style="font-size: 10pt;">(Apartment/building/unit no., street address)</span>
+          </td>
+        </tr>
+        <tr>
+          <th align="right">Area:</th>
+          <td>
+            <select id="area">
+              <option value=""></option>
+              <option value="Bandar Baru Kangkar Pulai">Bandar Baru Kangkar Pulai</option>
+              <option value="Kangkar Pulai">Kangkar Pulai</option>
+              <option value="Pulai Emas">Pulai Emas</option>
+              <option value="Pulai Flora">Pulai Flora</option>
+              <option value="Pulai Indah">Pulai Indah</option>
+              <option value="Sri Pulai">Sri Pulai</option>
+              <option value="Sri Pulai Perdana">Sri Pulai Perdana</option>
+              <option value="Sri Pulai Perdana 2">Sri Pulai Perdana 2</option>
+              <option value="UTM" selected>UTM</option>
+            </select>
+          </td>
+        </tr>
+        <tr><td colspan="2" align="center"><input type="button" id="saveorder" value="Save Order" onclick="alert('Try to save order...');saveOrder();"></td></tr>
+      </table>
+    </div>
+
+    <div>
+      <table class = "customerTable">
+        <thead>
+          <tr>
+            <th>header</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>data</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <map name="menumap">
+      <area shape="rect" coords="0,138,23,154" alt="Chicken Burger"
+            href="javascript: chooseItem('Chicken Burger', 8.8);" >
+      <area shape="rect" coords="128,138,147,154" alt="Hotouch Burger"
+            href="javascript: chooseItem('Hotouch Burger', 11.1);" >
+      <area shape="rect" coords="252,138,272,154" alt="Tower Burger"
+            href="javascript: chooseItem('Tower Burger', 13.8);" >
+      <area shape="rect" coords="378,138,395,154" alt="Fish Fillet Burger"
+            href="javascript: chooseItem('Fish Fillet Burger', 11.25);" >
+
+      <area shape="rect" coords="0,282,23,298" alt="Lucky Plate"
+            href="javascript: chooseItem('Lucky Plate', 11.90);" >
+      <area shape="rect" coords="128,282,147,298" alt="Chick-A-Licious"
+            href="javascript: chooseItem('Chick-A-Licious', 13.30);" >
+      <area shape="rect" coords="252,282,272,298" alt="Chick-A-Mix"
+            href="javascript: chooseItem('Chick-A-Mix', 11.90);" >
+      <area shape="rect" coords="377,282,395,298" alt="Fish 'n' Chip"
+            href="javascript: chooseItem('Fish \'n\' Chip', 13.90);" >
+
+      <area shape="rect" coords="0,430,23,446" alt="Nasi Marrybrown"
+            href="javascript: chooseItem('Nasi Marrybrown', 9.90);" >
+      <area shape="rect" coords="128,430,147,446" alt="Nasi Ayam MB"
+            href="javascript: chooseItem('Nasi Ayam MB', 10.30);" >
+      <area shape="rect" coords="252,430,272,446" alt="Mi Kari MB"
+            href="javascript: chooseItem('Mi Kari MB', 9.50);" >
+      <area shape="rect" coords="335,430,354,446" alt="Chicken Porridge"
+            href="javascript: chooseItem('Chicken Porridge', 6.50);" >
+      <area shape="rect" coords="418,430,436,446" alt="Seafood Porridge"
+            href="javascript: chooseItem('Seafood Porridge', 7.50);" >
+
+    </map>
+  </body>
+</html>
